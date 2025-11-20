@@ -6,6 +6,21 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+bool isVictory(bool win, int slot)
+{
+    bool is_radiant = (slot < 128); 
+    return is_radiant == win;
+}
+
+std::string side(int slot)
+{
+    bool is_radiant = (slot < 128);
+    if (is_radiant) {
+        return "Radiant";
+    }
+    else
+        return "Dire";
+}
 
 int main()
 {
@@ -17,8 +32,9 @@ int main()
     std::vector<Data> matches;
     bool has_matches = false;
 	Data_User* user_data = nullptr;
-    int selectedMatchId = 0;
+    uint64_t selectedMatchId = 0; 
     bool showMatchDetails = false;
+    Data selected_match;
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -46,6 +62,7 @@ int main()
             parser->parse(data);
             matches = parser->get_matches();
             has_matches = !matches.empty();
+            parser->parse_hero();
 			std::string user_data_str = fetcher.fetch_user(account_id);
             if (!user_data_str.empty()) {
                 parser->parse_user(user_data_str);
@@ -67,11 +84,33 @@ int main()
                 std::string match_label = std::to_string(m.match_id);
                 if (ImGui::Button(match_label.c_str())) {
                     selectedMatchId = m.match_id;
-                    showMatchDetails = true;            
+                    showMatchDetails = true;  
+                    selected_match = m;
                 }
                 ImGui::PopStyleColor();
             }
             ImGui::EndChild();
+            
+            if (showMatchDetails) {
+                ImGui::Begin("Match Details");
+                ImGui::Text("Match ID: %llu", selectedMatchId);
+                bool win = isVictory(selected_match.radiant_win, selected_match.player_slot);
+                if (win) {
+                    ImGui::Text("Victory");
+                }
+                else
+                    ImGui::Text("Lose\n");
+                std::string match_side = side(selected_match.player_slot);
+                ImGui::Text("Side: %s", match_side.c_str());
+                ImGui::Text("Hero: %s", parser->get_hero_name(selected_match.hero_id).c_str());
+                ImGui::Text("Kills: %d", selected_match.kills);
+                ImGui::Text("Deaths: %d", selected_match.deaths);
+                ImGui::Text("Assists: %d", selected_match.assists);
+                
+
+                ImGui::End();
+            }
+           
         }
 
         ImGui::End();

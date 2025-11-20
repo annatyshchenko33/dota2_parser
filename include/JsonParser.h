@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "rapidjson/document.h"
+#include <unordered_map>
 
 struct Data
 {
@@ -36,8 +37,11 @@ public:
 	void parse_user(const std::string& data) override;
 	 Data_User * get_users();
 	
+	 void parse_hero() override;
+	 std::string get_hero_name(int hero_id) override;
 
 private:
 	std::vector<Data> matches;
 	Data_User user;
+	std::unordered_map<int, std::string> hero_map;
 };

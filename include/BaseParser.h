@@ -23,4 +23,7 @@ public:
 		static  Data_User* empty;
 		return empty;
 	}
+
+	virtual void parse_hero() = 0;
+	virtual std::string get_hero_name(int hero_id) = 0;
 };

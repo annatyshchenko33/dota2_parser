@@ -1,5 +1,7 @@
 #include "JsonParser.h"
 #include <iostream>
+#include <fstream>
+
 
 void JsonParser::parse(const std::string& data)
 {
@@ -174,3 +176,53 @@ Data_User* JsonParser::get_users()
 {
     return &user;
 }
+
+void JsonParser::parse_hero()
+{
+	std::ifstream ifs("../external/heroes.json");
+	if (!ifs.is_open()) {
+		std::cout << "Cannot open heroes.json" << std::endl;
+		return;
+	}
+
+	std::string json((std::istreambuf_iterator<char>(ifs)),
+		std::istreambuf_iterator<char>());
+
+	rapidjson::Document document;
+	document.Parse(json.c_str());
+
+	if (document.HasParseError()) {
+		std::cout << "Parse Error (hero)" << std::endl;
+		return;
+	}
+
+	if (!document.HasMember("heroes") || !document["heroes"].IsArray()) {
+		std::cout << "heroes array missing" << std::endl;
+		return;
+	}
+
+	const rapidjson::Value& arr = document["heroes"];
+	hero_map.clear();
+
+	for (const auto& hero : arr.GetArray()) {
+		if (hero.HasMember("id") && hero.HasMember("localized_name")) {
+			int id = hero["id"].GetInt();
+			std::string name = hero["localized_name"].GetString();
+			hero_map[id] = name;
+		}
+	}
+
+	std::cout << "Loaded heroes: " << hero_map.size() << std::endl;
+}
+
+
+
+std::string JsonParser::get_hero_name(int hero_id)
+{
+	auto it = hero_map.find(hero_id);
+	if (it != hero_map.end())
+		return it->second;
+
+	return "Unknown";
+}
+
