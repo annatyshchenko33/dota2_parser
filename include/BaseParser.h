@@ -26,4 +26,5 @@ public:
 
 	virtual void parse_hero() = 0;
 	virtual std::string get_hero_name(int hero_id) = 0;
+	virtual std::string get_hero_img(int hero_id) = 0;
 };

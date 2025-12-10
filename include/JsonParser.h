@@ -40,8 +40,9 @@ public:
 	 void parse_hero() override;
 	 std::string get_hero_name(int hero_id) override;
 
+	 std::string get_hero_img(int hero_id) override;
 private:
 	std::vector<Data> matches;
 	Data_User user;
-	std::unordered_map<int, std::string> hero_map;
+	std::unordered_map<int, std::pair<std::string, std::string>> hero_map;
 };

@@ -5,6 +5,10 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include <urlmon.h>
+#include "Image.h"
+
+
 
 bool isVictory(bool win, int slot)
 {
@@ -35,6 +39,11 @@ int main()
     uint64_t selectedMatchId = 0; 
     bool showMatchDetails = false;
     Data selected_match;
+    Image user_avatar;
+    Image hero_avatar;
+	GLuint texture = 0;
+	GLuint hero_texture = 0;
+	std::string hero_img;
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -67,12 +76,17 @@ int main()
             if (!user_data_str.empty()) {
                 parser->parse_user(user_data_str);
                 user_data = parser->get_users();
+                user_avatar.loadAvatar(user_data->avatar);
+                texture = user_avatar.getTexture();
             }
         }
         if (has_matches)
         {
             if (user_data && !user_data->personaname.empty()) {
                 ImGui::TextColored(ImVec4(1.0f, 0.41f, 0.71f, 1.0f), user_data->personaname.c_str());
+				ImGui::Image((void*)(intptr_t)texture, ImVec2(64, 64));
+                std::cout << user_data->avatar << std::endl;
+                std::cout << user_data->steamid << std::endl;
             }
             else {
                 ImGui::TextColored(ImVec4(1.0f, 0.41f, 0.71f, 1.0f), "Unknown player");
@@ -100,13 +114,17 @@ int main()
                 }
                 else
                     ImGui::Text("Lose\n");
+                hero_img = parser->get_hero_img(selected_match.hero_id);
+				hero_avatar.loadAvatar(hero_img);
+				hero_texture = hero_avatar.getTexture();
                 std::string match_side = side(selected_match.player_slot);
                 ImGui::Text("Side: %s", match_side.c_str());
+                ImGui::Image((void*)(intptr_t)hero_texture, ImVec2(32, 32));
                 ImGui::Text("Hero: %s", parser->get_hero_name(selected_match.hero_id).c_str());
                 ImGui::Text("Kills: %d", selected_match.kills);
                 ImGui::Text("Deaths: %d", selected_match.deaths);
                 ImGui::Text("Assists: %d", selected_match.assists);
-                
+				
 
                 ImGui::End();
             }

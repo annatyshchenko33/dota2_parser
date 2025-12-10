@@ -13,6 +13,8 @@ set(SOURCES
     include/JsonParser.h
     src/Fetcher.cpp
     include/Fetcher.h
+    src/Image.cpp
+    include/Image.h
 )
 
 # -------------------------------
@@ -22,6 +24,8 @@ add_library(rapidjson INTERFACE)
 target_include_directories(rapidjson INTERFACE 
     ${CMAKE_SOURCE_DIR}/external/rapidjson/include
 )
+
+
 
 # -------------------------------
 # FetchContent
@@ -63,6 +67,10 @@ target_include_directories(imgui PUBLIC
     include
 )
 
+add_library(curl STATIC IMPORTED)
+
+set(CMAKE_TOOLCHAIN_FILE "C:/Users/Lenovo/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+
 # -------------------------------
 # OpenGL
 # -------------------------------
@@ -72,6 +80,10 @@ find_package(OpenGL REQUIRED)
 # Executable
 # -------------------------------
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_SOURCE_DIR}/external/stb
+)
 
 # -------------------------------
 # Link libraries

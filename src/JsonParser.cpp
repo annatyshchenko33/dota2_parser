@@ -142,17 +142,14 @@ void JsonParser::parse_user(const std::string& data)
 	}
 
 	if (src->HasMember("steamid") && (*src)["steamid"].IsString()) {
-		data_user.steamid = 0;
-	}
-	else if (src->HasMember("steamid") && (*src)["steamid"].IsUint64()) {
-		data_user.steamid = static_cast<uint32_t>((*src)["steamid"].GetUint64());
+		data_user.steamid = std::stoll((*src)["steamid"].GetString());
 	}
 	else {
 		data_user.steamid = 0;
 	}
 
-	if (src->HasMember("avatar") && (*src)["avatar"].IsString()) {
-		data_user.avatar = (*src)["avatar"].GetString();
+	if (src->HasMember("avatarfull") && (*src)["avatarfull"].IsString()) {
+		data_user.avatar = (*src)["avatarfull"].GetString();
 	}
 	else {
 		data_user.avatar.clear();
@@ -205,10 +202,11 @@ void JsonParser::parse_hero()
 	hero_map.clear();
 
 	for (const auto& hero : arr.GetArray()) {
-		if (hero.HasMember("id") && hero.HasMember("localized_name")) {
+		if (hero.HasMember("id") && hero.HasMember("localized_name") && hero.HasMember("url_small_portrait")) {
 			int id = hero["id"].GetInt();
 			std::string name = hero["localized_name"].GetString();
-			hero_map[id] = name;
+			std::string hero_img = hero["url_small_portrait"].GetString();
+			hero_map[id] = {name, hero_img};
 		}
 	}
 
@@ -221,8 +219,16 @@ std::string JsonParser::get_hero_name(int hero_id)
 {
 	auto it = hero_map.find(hero_id);
 	if (it != hero_map.end())
-		return it->second;
+		return it->second.first;
 
 	return "Unknown";
 }
 
+std::string JsonParser::get_hero_img(int hero_id)
+{
+	auto it = hero_map.find(hero_id);
+	if (it != hero_map.end())
+		return it->second.second;
+
+	return "Unknown";
+}
